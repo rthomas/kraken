@@ -29,6 +29,13 @@ pub mod nzxt {
             let mut buf = [0u8; 64];
             let res = self.device.read_timeout(&mut buf, 1000)?;
             
+            if res < 0x0f {
+                // We don't have enough data to extract the values we need - something went wrong.
+                return Err(hidapi::HidError::HidApiError{
+                    message: format!("Only got {} bytes back from the API.", res),
+                });
+            }
+
             Ok(KrakenData {
                 liquid_temp: buf[1],
                 fan_speed: (buf[3] as u16) << 8 | buf[4] as u16,
