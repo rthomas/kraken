@@ -43,6 +43,56 @@ pub mod nzxt {
                 firmware_version: (buf[0x0b], (buf[0x0c] as u16) << 8 | buf[0x0d] as u16, buf[0x0e]),
             })
         }
+
+        pub fn set_fan_speed(&self, fan_speed: u8) -> Result<(), hidapi::HidError> {
+            if fan_speed < 25 || fan_speed > 100 {
+                return Err(hidapi::HidError::HidApiError{
+                    message: format!("Fan speed must be between 25% and 100%."),
+                });
+            }
+            
+            let mut buf = [0u8; 5];
+            buf[0] = 0x02;
+            buf[1] = 0x4d;
+            buf[2] = 0x00;
+            buf[3] = 0x00;
+            buf[4] = fan_speed;
+
+            let res = self.device.write(&buf)?;
+
+            if res != buf.len() {
+                return Err(hidapi::HidError::HidApiError{
+                    message: format!("Could not write all of the message to the device."),
+                });
+            }
+
+            Ok(())
+        }
+
+        pub fn set_pump_speed(&self, pump_speed: u8) -> Result<(), hidapi::HidError> {
+            if pump_speed < 60 || pump_speed > 100 {
+                return Err(hidapi::HidError::HidApiError{
+                    message: format!("Pump speed must be between 60% and 100%."),
+                });
+            }
+            
+            let mut buf = [0u8; 5];
+            buf[0] = 0x02;
+            buf[1] = 0x4d;
+            buf[2] = 0x00;
+            buf[3] = 0x00;
+            buf[4] = pump_speed;
+
+            let res = self.device.write(&buf)?;
+
+            if res != buf.len() {
+                return Err(hidapi::HidError::HidApiError{
+                    message: format!("Could not write all of the message to the device."),
+                });
+            }
+
+            Ok(())
+        }
     }
 }
 
@@ -53,7 +103,7 @@ fn main() {
     
     println!("DATA: {:?}", data);
 
-    
+    kraken.set_fan_speed(25).unwrap();
 
     
 
