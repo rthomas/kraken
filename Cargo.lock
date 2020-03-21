@@ -8,9 +8,9 @@ checksum = "95e28fa049fda1c330bcf9d723be7663a899c4679724b34c81e9f5a326aab8cd"
 
 [[package]]
 name = "hidapi"
-version = "1.2.0"
+version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1cfd6cd631a5f39abaabad541f0b64bfcb7e55fa5c7de9a1e5d5578cb86dd687"
+checksum = "e347988010cd7d98689c553ab3d32f53e62cabb0d876aed16d41a8f9c1760e54"
 dependencies = [
  "cc",
  "libc",
@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "krakend"
+name = "kraken"
 version = "0.1.0"
 dependencies = [
  "hidapi",
