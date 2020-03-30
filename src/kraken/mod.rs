@@ -6,10 +6,10 @@ const NZXT_KRAKEN_X_PRODUCT_ID: u16 = 0x170e;
 
 #[derive(Debug)]
 pub struct KrakenData {
-    liquid_temp: u8,
-    fan_speed: u16,
-    pump_speed: u16,
-    firmware_version: (u8, u16, u8),
+    pub liquid_temp: u8,
+    pub fan_speed: u16,
+    pub pump_speed: u16,
+    pub firmware_version: (u8, u16, u8),
 }
 
 #[derive(Debug)]
@@ -40,29 +40,42 @@ impl error::Error for KrakenError {
     }
 }
 
+impl From<KrakenError> for std::io::Error {
+    fn from (error: KrakenError) -> Self {
+        std::io::Error::new(std::io::ErrorKind::Other, error)
+    }
+}
+
 pub struct Kraken {
     device: hidapi::HidDevice,
 }
 
 impl Kraken {
-    pub fn open() -> Result<Kraken, hidapi::HidError> {
-        let api = hidapi::HidApi::new()?;
-        let device = api.open(NZXT_VENDOR_ID, NZXT_KRAKEN_X_PRODUCT_ID)?;
+    pub fn open() -> Result<Kraken, KrakenError> {
+        let api = match hidapi::HidApi::new() {
+            Ok(r) => r,
+            Err(e) => return Err(KrakenError::UsbError(e)),
+        };
+        let device = match api.open(NZXT_VENDOR_ID, NZXT_KRAKEN_X_PRODUCT_ID) {
+            Ok(r) => r,
+            Err(e) => return Err(KrakenError::UsbError(e)),
+        };
 
         Ok(Kraken {
             device,
         })
     }
 
-    pub fn read(&self) -> Result<KrakenData, hidapi::HidError> {
+    pub fn read(&self) -> Result<KrakenData, KrakenError> {
         let mut buf = [0u8; 64];
-        let res = self.device.read_timeout(&mut buf, 1000)?;
+        let res = match self.device.read_timeout(&mut buf, 1000) {
+            Ok(r) => r,
+            Err(e) => return Err(KrakenError::UsbError(e)),
+        };
         
         if res < 0x0f {
             // We don't have enough data to extract the values we need - something went wrong.
-            return Err(hidapi::HidError::HidApiError{
-                message: format!("Only got {} bytes back from the API.", res),
-            });
+            return Err(KrakenError::Comms);
         }
 
         Ok(KrakenData {
