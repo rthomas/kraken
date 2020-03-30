@@ -6,3 +6,4 @@ edition = "2018"
 
 [dependencies]
 hidapi = "1.2.1"
+clap = "2.33.0"
