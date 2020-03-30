@@ -27,7 +27,7 @@ fn main() -> Result<(), std::io::Error> {
 
     let kraken = kraken::Kraken::open()?;
 
-    if let Some(_) = matches.subcommand_matches("info") {
+    if matches.subcommand_matches("info").is_some() {
         let data = kraken.read()?;
         println!("{0: <15}{1} rpm", "Fan Speed:", data.fan_speed);
         println!("{0: <15}{1} rpm", "Pump Speed:", data.pump_speed);
@@ -70,7 +70,7 @@ fn main() -> Result<(), std::io::Error> {
             }
         }
     }
-    else if let Some(_) = matches.subcommand_matches("temp") {
+    else if matches.subcommand_matches("temp").is_some() {
         let data = kraken.read()?;
         println!("{}", data.liquid_temp);
     }
