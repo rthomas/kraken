@@ -1,4 +1,4 @@
-use clap::{Arg, App, AppSettings, SubCommand};
+use clap::{App, AppSettings, Arg, SubCommand};
 
 fn main() -> Result<(), std::io::Error> {
     let matches = App::new(env!("CARGO_PKG_NAME"))
@@ -6,20 +6,33 @@ fn main() -> Result<(), std::io::Error> {
         .version(env!("CARGO_PKG_VERSION"))
         .author(env!("CARGO_PKG_AUTHORS"))
         .about(env!("CARGO_PKG_DESCRIPTION"))
-        .subcommand(SubCommand::with_name("info")
-            .about("Prints info about the Kraken device."))
-        .subcommand(SubCommand::with_name("pump")
-            .about("Reports or sets the speed of the pump. This can be set between 60% and 100%.")
-            .arg(Arg::with_name("SPEED")
-                    .required(false)
-                    .help("Pump speed to set - 60-100 (percent)")))
-        .subcommand(SubCommand::with_name("fan")
-            .about("Reports or sets the speed of the fan. This can be set between 25% and 100%.")
-            .arg(Arg::with_name("SPEED")
-                    .required(false)
-                    .help("Fan speed to set - 25-100 (percent)")))
-        .subcommand(SubCommand::with_name("temp")
-            .about("Reports or the liquid temperature of the cooler in degrees celcius."))
+        .subcommand(SubCommand::with_name("info").about("Prints info about the Kraken device."))
+        .subcommand(
+            SubCommand::with_name("pump")
+                .about(
+                    "Reports or sets the speed of the pump. This can be set between 60% and 100%.",
+                )
+                .arg(
+                    Arg::with_name("SPEED")
+                        .required(false)
+                        .help("Pump speed to set - 60-100 (percent)"),
+                ),
+        )
+        .subcommand(
+            SubCommand::with_name("fan")
+                .about(
+                    "Reports or sets the speed of the fan. This can be set between 25% and 100%.",
+                )
+                .arg(
+                    Arg::with_name("SPEED")
+                        .required(false)
+                        .help("Fan speed to set - 25-100 (percent)"),
+                ),
+        )
+        .subcommand(
+            SubCommand::with_name("temp")
+                .about("Reports or the liquid temperature of the cooler in degrees celcius."),
+        )
         .get_matches();
 
     let kraken = kraken_rs::Kraken::open()?;
@@ -29,11 +42,11 @@ fn main() -> Result<(), std::io::Error> {
         println!("{0: <15}{1} rpm", "Fan Speed:", data.fan_speed);
         println!("{0: <15}{1} rpm", "Pump Speed:", data.pump_speed);
         println!("{0: <15}{1} C", "Liquid Temp:", data.liquid_temp);
-        println!("{0: <15}{1}.{2}.{3}", "Version:", data.firmware_version.0,
-                                                    data.firmware_version.1,
-                                                    data.firmware_version.2);
-    }
-    else if let Some(cmd) = matches.subcommand_matches("pump") {
+        println!(
+            "{0: <15}{1}.{2}.{3}",
+            "Version:", data.firmware_version.0, data.firmware_version.1, data.firmware_version.2
+        );
+    } else if let Some(cmd) = matches.subcommand_matches("pump") {
         match cmd.value_of("SPEED") {
             Some(speed) => {
                 let pct = match speed.parse::<u8>() {
@@ -49,8 +62,7 @@ fn main() -> Result<(), std::io::Error> {
                 println!("{}", data.pump_speed);
             }
         }
-    }
-    else if let Some(cmd) = matches.subcommand_matches("fan") {
+    } else if let Some(cmd) = matches.subcommand_matches("fan") {
         match cmd.value_of("SPEED") {
             Some(speed) => {
                 let pct = match speed.parse::<u8>() {
@@ -66,8 +78,7 @@ fn main() -> Result<(), std::io::Error> {
                 println!("{}", data.fan_speed);
             }
         }
-    }
-    else if matches.subcommand_matches("temp").is_some() {
+    } else if matches.subcommand_matches("temp").is_some() {
         let data = kraken.read()?;
         println!("{}", data.liquid_temp);
     }

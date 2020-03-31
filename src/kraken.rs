@@ -36,7 +36,9 @@ impl fmt::Display for KrakenError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             KrakenError::FanSpeedOutOfRange => write!(f, "Fan speed must be between 25% and 100%"),
-            KrakenError::PumpSpeedOutOfRange => write!(f, "Pump speed must be between 60% and 100%"),
+            KrakenError::PumpSpeedOutOfRange => {
+                write!(f, "Pump speed must be between 60% and 100%")
+            }
             KrakenError::Comms => write!(f, "Did not receive enough data from the device"),
             KrakenError::UsbError(ref e) => e.fmt(f),
         }
@@ -44,7 +46,7 @@ impl fmt::Display for KrakenError {
 }
 
 impl error::Error for KrakenError {
-    fn source(&self) ->Option<&(dyn error::Error + 'static)> {
+    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         match *self {
             KrakenError::UsbError(ref e) => Some(e),
             _ => None,
@@ -53,7 +55,7 @@ impl error::Error for KrakenError {
 }
 
 impl From<KrakenError> for std::io::Error {
-    fn from (error: KrakenError) -> Self {
+    fn from(error: KrakenError) -> Self {
         std::io::Error::new(std::io::ErrorKind::Other, error)
     }
 }
@@ -65,7 +67,7 @@ pub struct Kraken {
 
 impl Kraken {
     /// Attempts to open the Kraken device.
-    /// 
+    ///
     /// This will usually require superuser priviledges on the machine, and will
     /// return an error if attempted without them.
     pub fn open() -> Result<Kraken, KrakenError> {
@@ -78,9 +80,7 @@ impl Kraken {
             Err(e) => return Err(KrakenError::UsbError(e)),
         };
 
-        Ok(Kraken {
-            device,
-        })
+        Ok(Kraken { device })
     }
 
     /// Reads the current state of the Kraken device.
@@ -93,7 +93,7 @@ impl Kraken {
             Ok(r) => r,
             Err(e) => return Err(KrakenError::UsbError(e)),
         };
-        
+
         if res < 0x0f {
             // We don't have enough data to extract the values we need - something went wrong.
             return Err(KrakenError::Comms);
@@ -103,7 +103,11 @@ impl Kraken {
             liquid_temp: buf[1],
             fan_speed: (buf[3] as u16) << 8 | buf[4] as u16,
             pump_speed: (buf[5] as u16) << 8 | buf[6] as u16,
-            firmware_version: (buf[0x0b], (buf[0x0c] as u16) << 8 | buf[0x0d] as u16, buf[0x0e]),
+            firmware_version: (
+                buf[0x0b],
+                (buf[0x0c] as u16) << 8 | buf[0x0d] as u16,
+                buf[0x0e],
+            ),
         })
     }
 
@@ -115,7 +119,7 @@ impl Kraken {
         if fan_speed < 25 || fan_speed > 100 {
             return Err(KrakenError::FanSpeedOutOfRange);
         }
-        
+
         let mut buf = [0u8; 5];
         buf[0] = 0x02;
         buf[1] = 0x4d;
@@ -143,7 +147,7 @@ impl Kraken {
         if pump_speed < 60 || pump_speed > 100 {
             return Err(KrakenError::PumpSpeedOutOfRange);
         }
-        
+
         let mut buf = [0u8; 5];
         buf[0] = 0x02;
         buf[1] = 0x4d;
