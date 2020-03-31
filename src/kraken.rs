@@ -1,22 +1,34 @@
+#![deny(missing_docs)]
+
 use std::error;
 use std::fmt;
 
 const NZXT_VENDOR_ID: u16 = 0x1e71;
 const NZXT_KRAKEN_X_PRODUCT_ID: u16 = 0x170e;
 
+/// This struct tracks the details returned by the device when we query it.
 #[derive(Debug)]
 pub struct KrakenData {
+    /// The temp of the liquid in degrees C.
     pub liquid_temp: u8,
+    /// The current speed of the fan as RPM.
     pub fan_speed: u16,
+    /// The current speed of the pump as RPM.
     pub pump_speed: u16,
+    /// The current firmware version as (Major, Minor, Revision).
     pub firmware_version: (u8, u16, u8),
 }
 
+/// A common error enum for errors returned from our API.
 #[derive(Debug)]
 pub enum KrakenError {
+    /// If the fan speed supplied is outside of the 25-100% range.
     FanSpeedOutOfRange,
+    /// If the pump speed supplied is outside of the 60-100% range.
     PumpSpeedOutOfRange,
+    /// If the device did not return enough data to us.
     Comms,
+    /// Wrapper error for any underlying USB errors thrown by the hidapi.
     UsbError(hidapi::HidError),
 }
 
@@ -46,11 +58,16 @@ impl From<KrakenError> for std::io::Error {
     }
 }
 
+/// Representation of the Kraken device containing the underlying USB device.
 pub struct Kraken {
     device: hidapi::HidDevice,
 }
 
 impl Kraken {
+    /// Attempts to open the Kraken device.
+    /// 
+    /// This will usually require superuser priviledges on the machine, and will
+    /// return an error if attempted without them.
     pub fn open() -> Result<Kraken, KrakenError> {
         let api = match hidapi::HidApi::new() {
             Ok(r) => r,
@@ -66,6 +83,10 @@ impl Kraken {
         })
     }
 
+    /// Reads the current state of the Kraken device.
+    ///
+    /// This will populate a `KrakenData` struct with the current values of the
+    /// device.
     pub fn read(&self) -> Result<KrakenData, KrakenError> {
         let mut buf = [0u8; 64];
         let res = match self.device.read_timeout(&mut buf, 1000) {
@@ -86,6 +107,10 @@ impl Kraken {
         })
     }
 
+    /// Sets the fan speed of the device.
+    ///
+    /// A fan speed provided outside of the range 25-100% will result in a
+    /// `FanSpeedOutOfRange` Error.
     pub fn set_fan_speed(&self, fan_speed: u8) -> Result<(), KrakenError> {
         if fan_speed < 25 || fan_speed > 100 {
             return Err(KrakenError::FanSpeedOutOfRange);
@@ -110,6 +135,10 @@ impl Kraken {
         Ok(())
     }
 
+    /// Sets the pump speed of the device.
+    ///
+    /// A pump speed provided outside of the range 60-100% will result in a
+    /// `PumpSpeedOutOfRange` Error.
     pub fn set_pump_speed(&self, pump_speed: u8) -> Result<(), KrakenError> {
         if pump_speed < 60 || pump_speed > 100 {
             return Err(KrakenError::PumpSpeedOutOfRange);
