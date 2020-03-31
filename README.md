@@ -1,6 +1,6 @@
 # NZXT Kraken X Series API and CLI.
 
-![Crates.io](https://img.shields.io/crates/v/kraken_rs)
+[![Crates.io](https://img.shields.io/crates/v/kraken_rs)](https://crates.io/crates/kraken_rs)
 
 ## API
 
