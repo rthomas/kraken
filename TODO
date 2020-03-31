@@ -1,0 +1,3 @@
+- The Kraken requires pump / fan speeds to be set every 10 seconds otherwise it
+will revert back to the Performance profile.
+- We're not getting the decimal value of the liquid temp from the API.
