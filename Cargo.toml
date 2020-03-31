@@ -2,7 +2,12 @@
 name = "kraken"
 version = "0.1.0"
 authors = ["ryan@ryant.org"]
+description = "A crate to manipulate the NZXT Kraken X series device under Linux, and CLI tool"
 edition = "2018"
+readme = "README.md"
+license = "MIT"
+categories = ["command-line-utilities"]
+repository = "https://github.com/rthomas/kraken"
 
 [dependencies]
 hidapi = "1.2.1"
