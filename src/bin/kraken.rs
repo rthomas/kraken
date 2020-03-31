@@ -1,7 +1,5 @@
 use clap::{Arg, App, AppSettings, SubCommand};
 
-mod kraken;
-
 
 fn main() -> Result<(), std::io::Error> {
     let matches = App::new(env!("CARGO_PKG_NAME"))
