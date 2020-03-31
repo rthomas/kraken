@@ -1,5 +1,7 @@
 # NZXT Kraken X Series API and CLI.
 
+![Crates.io](https://img.shields.io/crates/v/kraken_rs)
+
 ## API
 
 The API is centred around the `Kraken` struct and allows you to read the current
