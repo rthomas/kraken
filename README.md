@@ -35,3 +35,9 @@ current pump speed if none is provided.
 #### `temp`
 
 This command reports the current liquid temperature in degrees celcius.
+
+## Credits
+
+This was developed referencing the [NZXT Kraken protocol
+documentation](https://github.com/KsenijaS/krakenx/blob/master/doc/protocol.md)
+by [Ksenijas@](https://github.com/KsenijaS/).
