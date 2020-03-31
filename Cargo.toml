@@ -1,5 +1,5 @@
 [package]
-name = "kraken"
+name = "kraken_rs"
 version = "0.1.0"
 authors = ["ryan@ryant.org"]
 description = "A crate to manipulate the NZXT Kraken X series device under Linux, and CLI tool"

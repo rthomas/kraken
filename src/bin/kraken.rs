@@ -1,6 +1,5 @@
 use clap::{Arg, App, AppSettings, SubCommand};
 
-
 fn main() -> Result<(), std::io::Error> {
     let matches = App::new(env!("CARGO_PKG_NAME"))
         .setting(AppSettings::ArgRequiredElseHelp)
@@ -23,7 +22,7 @@ fn main() -> Result<(), std::io::Error> {
             .about("Reports or the liquid temperature of the cooler in degrees celcius."))
         .get_matches();
 
-    let kraken = kraken::Kraken::open()?;
+    let kraken = kraken_rs::Kraken::open()?;
 
     if matches.subcommand_matches("info").is_some() {
         let data = kraken.read()?;
